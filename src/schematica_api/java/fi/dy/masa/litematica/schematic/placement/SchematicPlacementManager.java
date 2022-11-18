@@ -17,15 +17,24 @@
 
 package fi.dy.masa.litematica.schematic.placement;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class SchematicPlacementManager {
-    private final List<SchematicPlacement> schematicPlacements = new ArrayList<>();
 
     //in case of a java.lang.NoSuchMethodError try change the name of this method to getAllSchematicPlacements()
     //there are inconsistencies in the litematica mod about the naming of this method
     public List<SchematicPlacement> getAllSchematicsPlacements() {
-        return schematicPlacements;
+        return null;
+    }
+
+    //methods will be used in future litematica releases after the developer finished his rewrite
+    public List<SchematicPlacementUnloaded> getAllSchematicPlacements() {
+        return null;
+    }
+
+    public Set<SchematicPlacement> getVisibleSchematicPlacements()
+    {
+        return null;
     }
 }

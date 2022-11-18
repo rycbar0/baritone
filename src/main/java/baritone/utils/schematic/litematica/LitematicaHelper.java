@@ -19,13 +19,19 @@ package baritone.utils.schematic.litematica;
 
 import baritone.utils.schematic.format.defaults.LitematicaSchematic;
 import fi.dy.masa.litematica.Litematica;
+import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.data.DataManager;
+import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.Vec3i;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Helper class that provides access or processes data related to Litmatica schematics.
@@ -45,6 +51,22 @@ public final class LitematicaHelper {
         } catch (ClassNotFoundException | NoClassDefFoundError ex) {
             return false;
         }
+    }
+
+    /**
+     * Grabbing the NBT data from the schematic placement allows get schematics that only exits in Memory
+     * @param i index of the Schematic in the schematic placement list.
+     * @return NBT tag containing the schematic
+     */
+    public static NBTTagCompound getNBTFromLoadedLitematic(int i) {
+        return DataManager.getSchematicPlacementManager().getAllSchematicsPlacements().get(i).getSchematic().writeToNBT();
+        /* this will be used int future litematica releases
+        Iterator<SchematicPlacement> iterator = DataManager.getSchematicPlacementManager().getVisibleSchematicPlacements().iterator();
+        List<SchematicPlacement> list = new ArrayList<>();
+        while (iterator.hasNext()) {
+            list.add(iterator.next());
+        }
+        return list.get(i).getSchematic().toTag();/**/
     }
 
     /**
@@ -95,6 +117,15 @@ public final class LitematicaHelper {
     }
 
     /**
+     * If the subregions have been moved
+     * @param i index of the Schematic in the schematic placement list.
+     * @return if the Region placement is modified.
+     */
+    public static boolean isRegionPlacementModified(int i) {
+        return DataManager.getSchematicPlacementManager().getAllSchematicsPlacements().get(i).isRegionPlacementModified();
+    }
+
+    /**
      * @param schematic original schematic.
      * @param i         index of the Schematic in the schematic placement list.
      * @return the minimum corner coordinates of the schematic, after the original schematic got rotated and mirrored.
@@ -106,8 +137,8 @@ public final class LitematicaHelper {
         int mx = schematic.getOffsetMinCorner().getX();
         int my = schematic.getOffsetMinCorner().getY();
         int mz = schematic.getOffsetMinCorner().getZ();
-        int sx = (schematic.getX() - 1) * -1;
-        int sz = (schematic.getZ() - 1) * -1;
+        int sx = (schematic.widthX() - 1) * -1;
+        int sz = (schematic.lengthZ() - 1) * -1;
 
         Vec3i correctedOrigin;
         Mirror mirror = LitematicaHelper.getMirror(i);
@@ -188,16 +219,16 @@ public final class LitematicaHelper {
      */
     public static LitematicaSchematic blackMagicFuckery(LitematicaSchematic schemIn, int i) {
         LitematicaSchematic tempSchem = schemIn.getCopy(LitematicaHelper.getRotation(i).ordinal() % 2 == 1);
-        for (int yCounter = 0; yCounter < schemIn.getY(); yCounter++) {
-            for (int zCounter = 0; zCounter < schemIn.getZ(); zCounter++) {
-                for (int xCounter = 0; xCounter < schemIn.getX(); xCounter++) {
+        for (int yCounter = 0; yCounter < schemIn.heightY(); yCounter++) {
+            for (int zCounter = 0; zCounter < schemIn.lengthZ(); zCounter++) {
+                for (int xCounter = 0; xCounter < schemIn.widthX(); xCounter++) {
                     Vec3i xyzHolder = new Vec3i(xCounter, yCounter, zCounter);
-                    xyzHolder = LitematicaHelper.doMirroring(xyzHolder, schemIn.getX() - 1, schemIn.getZ() - 1, LitematicaHelper.getMirror(i));
+                    xyzHolder = LitematicaHelper.doMirroring(xyzHolder, schemIn.widthX() - 1, schemIn.lengthZ() - 1, LitematicaHelper.getMirror(i));
                     for (int turns = 0; turns < LitematicaHelper.getRotation(i).ordinal(); turns++) {
                         if ((turns % 2) == 0) {
-                            xyzHolder = LitematicaHelper.rotate(xyzHolder, schemIn.getX() - 1, schemIn.getZ() - 1);
+                            xyzHolder = LitematicaHelper.rotate(xyzHolder, schemIn.widthX() - 1, schemIn.lengthZ() - 1);
                         } else {
-                            xyzHolder = LitematicaHelper.rotate(xyzHolder, schemIn.getZ() - 1, schemIn.getX() - 1);
+                            xyzHolder = LitematicaHelper.rotate(xyzHolder, schemIn.lengthZ() - 1, schemIn.widthX() - 1);
                         }
                     }
                     IBlockState state = schemIn.getDirect(xCounter, yCounter, zCounter);

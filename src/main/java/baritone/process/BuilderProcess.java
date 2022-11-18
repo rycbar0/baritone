@@ -57,6 +57,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.*;
@@ -192,13 +193,27 @@ public final class BuilderProcess extends BaritoneProcessHelper implements IBuil
             //if java.lang.NoSuchMethodError is thrown see comment in SchematicPlacementManager
             if (LitematicaHelper.hasLoadedSchematic()) {
                 String name = LitematicaHelper.getName(i);
-                try {
-                    LitematicaSchematic schematic1 = new LitematicaSchematic(CompressedStreamTools.readCompressed(Files.newInputStream(LitematicaHelper.getSchematicFile(i).toPath())), false);
+                NBTTagCompound nbt = null;
+                if (LitematicaHelper.getSchematicFile(i) == null) { //this is a in memory only schematic
+                    try {
+                        nbt = LitematicaHelper.getNBTFromLoadedLitematic(i);
+                    } catch (IllegalAccessError ignored) {
+
+                    }
+                } else {
+                    try {
+                        nbt = CompressedStreamTools.readCompressed(Files.newInputStream(LitematicaHelper.getSchematicFile(i).toPath()));
+                    } catch (IOException ignored) {
+
+                    }
+                }
+                if (nbt != null && !LitematicaHelper.isRegionPlacementModified(i)) {
+                    LitematicaSchematic schematic1 = new LitematicaSchematic(nbt, false);
                     Vec3i correctedOrigin = LitematicaHelper.getCorrectedOrigin(schematic1, i);
                     LitematicaSchematic schematic2 = LitematicaHelper.blackMagicFuckery(schematic1, i);
                     build(name, schematic2, correctedOrigin);
-                } catch (IOException e) {
-                    logDirect("Schematic File could not be loaded.");
+                } else {
+                    logDirect("Unable to build this schematic.");
                 }
             } else {
                 logDirect("No schematic currently loaded");

@@ -17,6 +17,8 @@
 
 package fi.dy.masa.litematica.schematic.placement;
 
+import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 
 import javax.annotation.Nullable;
@@ -39,5 +41,22 @@ public class SchematicPlacementUnloaded {
 
     public BlockPos getOrigin() {
         return this.origin;
+    }
+
+    public Rotation getRotation() {
+        return null;
+    }
+
+    public Mirror getMirror() {
+        return null;
+    }
+
+    /**
+     * if this returns true abandon all hopes
+     * @return JUDGMENT
+     */
+    public boolean isRegionPlacementModified()
+    {
+        return false;
     }
 }

@@ -233,27 +233,6 @@ public final class LitematicaSchematic extends StaticSchematic {
     }
 
     /**
-     * @return x size of the schematic.
-     */
-    public int getX() {
-        return this.x;
-    }
-
-    /**
-     * @return y size of the schematic.
-     */
-    public int getY() {
-        return this.y;
-    }
-
-    /**
-     * @return z size of the schematic.
-     */
-    public int getZ() {
-        return this.z;
-    }
-
-    /**
      * @param x          position relative to the minimum corner of the schematic.
      * @param y          position relative to the minimum corner of the schematic.
      * @param z          position relative to the minimum corner of the schematic.

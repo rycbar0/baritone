@@ -15,19 +15,13 @@
  * along with Baritone.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fi.dy.masa.litematica.schematic.placement;
+package fi.dy.masa.litematica.schematic;
 
-import fi.dy.masa.litematica.schematic.ISchematic;
-import fi.dy.masa.litematica.schematic.LitematicaSchematic;
+import net.minecraft.nbt.NBTTagCompound;
 
-public class SchematicPlacement extends SchematicPlacementUnloaded {
+public class LitematicaSchematic {
 
-    public LitematicaSchematic getSchematic() {
-        return null;
+    private NBTTagCompound writeToNBT() {
+      return null;
     }
-
-    /*public ISchematic getSchematic() {
-        return null;
-    }*/
-
 }
