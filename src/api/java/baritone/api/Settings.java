@@ -932,6 +932,18 @@ public final class Settings {
     public final Setting<Boolean> buildRepeatSneaky = new Setting<>(true);
 
     /**
+     * Schematics are built with this mirroring applied
+     * Accepted values are "NONE", "LEFT_RIGHT", "FRONT_BACK"
+     */
+    public final Setting<String> buildApplyMirror = new Setting<>("NONE");
+
+    /**
+     * Schematics are built with this rotation applied
+     * Accepted values are "NONE", "CLOCKWISE_90", "CLOCKWISE_180", "COUNTERCLOCKWISE_90"
+     */
+    public final Setting<String> buildApplyRotation = new Setting<>("NONE");
+
+    /**
      * Allow standing above a block while mining it, in BuilderProcess
      * <p>
      * Experimental

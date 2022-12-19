@@ -19,9 +19,7 @@ package baritone.utils.schematic.litematica;
 
 import baritone.utils.schematic.format.defaults.LitematicaSchematic;
 import fi.dy.masa.litematica.Litematica;
-import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.data.DataManager;
-import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.Mirror;
@@ -29,9 +27,6 @@ import net.minecraft.util.Rotation;
 import net.minecraft.util.math.Vec3i;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * Helper class that provides access or processes data related to Litmatica schematics.

@@ -44,6 +44,7 @@ import baritone.utils.PathingCommandContext;
 import baritone.utils.schematic.MapArtSchematic;
 import baritone.utils.schematic.SchematicSystem;
 import baritone.utils.schematic.SelectionSchematic;
+import baritone.utils.schematic.StaticSchematic;
 import baritone.utils.schematic.format.defaults.LitematicaSchematic;
 import baritone.utils.schematic.litematica.LitematicaHelper;
 import baritone.utils.schematic.schematica.SchematicaHelper;
@@ -151,6 +152,9 @@ public final class BuilderProcess extends BaritoneProcessHelper implements IBuil
 
         if (Baritone.settings().buildOnlySelection.value) {
             parsed = new SelectionSchematic(parsed, origin, baritone.getSelectionManager().getSelections());
+        }
+        if(parsed instanceof StaticSchematic) {
+            ((StaticSchematic) parsed).applyMirrorRotation();
         }
 
 

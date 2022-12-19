@@ -21,7 +21,7 @@ import net.minecraft.nbt.NBTTagCompound;
 
 public class LitematicaSchematic {
 
-    private NBTTagCompound writeToNBT() {
+    public NBTTagCompound writeToNBT() {
       return null;
     }
 }
