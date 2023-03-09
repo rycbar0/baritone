@@ -15,29 +15,10 @@
  * along with Baritone.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fi.dy.masa.litematica.schematic.placement;
+package fi.dy.masa.malilib.util.data;
 
-import net.minecraft.util.math.BlockPos;
-
-import javax.annotation.Nullable;
-import java.io.File;
-
-public class SchematicPlacementUnloaded {
-    protected String name = "?";
-    @Nullable
-    protected File schematicFile;
-    protected BlockPos origin = BlockPos.ORIGIN;
-
-    public String getName() {
-        return this.name;
-    }
-
-    @Nullable
-    public File getSchematicFile() {
-        return this.schematicFile;
-    }
-
-    public BlockPos getOrigin() {
-        return this.origin;
-    }
+public enum EnabledCondition {
+    ANY,
+    ENABLED,
+    DISABLED
 }

@@ -29,6 +29,7 @@ import net.minecraft.util.math.Vec3i;
 import org.apache.commons.lang3.Validate;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -226,49 +227,18 @@ public final class LitematicaSchematic extends StaticSchematic {
     }
 
     /**
-     * @return offset from the schematic origin to the minimum Corner as a Vec3i.
+     * If we are in a schematic hole we will accept what ever is already there. Else we want what the schematic provides.
+     *
+     * @param x               The x position of the block, relative to the origin
+     * @param y               The y position of the block, relative to the origin
+     * @param z               The z position of the block, relative to the origin
+     * @param current         The current state of that block in the world, or null
+     * @param approxPlaceable The list of blockstates estimated to be placeable
+     * @return                BlockState of the Schematic or if that is null the BlockState that already is at that position.
      */
-    public Vec3i getOffsetMinCorner() {
-        return offsetMinCorner;
-    }
-
-    /**
-     * @return x size of the schematic.
-     */
-    public int getX() {
-        return this.x;
-    }
-
-    /**
-     * @return y size of the schematic.
-     */
-    public int getY() {
-        return this.y;
-    }
-
-    /**
-     * @return z size of the schematic.
-     */
-    public int getZ() {
-        return this.z;
-    }
-
-    /**
-     * @param x          position relative to the minimum corner of the schematic.
-     * @param y          position relative to the minimum corner of the schematic.
-     * @param z          position relative to the minimum corner of the schematic.
-     * @param blockState new blockstate of the block at this position.
-     */
-    public void setDirect(int x, int y, int z, IBlockState blockState) {
-        this.states[x][z][y] = blockState;
-    }
-
-    /**
-     * @param rotated if the schematic is rotated by 90°.
-     * @return a copy of the schematic.
-     */
-    public LitematicaSchematic getCopy(boolean rotated) {
-        return new LitematicaSchematic(nbt, rotated);
+    @Override
+    public IBlockState desiredState(int x, int y, int z, IBlockState current, List<IBlockState> approxPlaceable) {
+        return states[x][y][z] == null ? current : states[x][y][z];
     }
 
     /**

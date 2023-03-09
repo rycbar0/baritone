@@ -58,7 +58,12 @@ public interface IBuilderProcess extends IBaritoneProcess {
 
     void buildOpenSchematic();
 
-    void buildOpenLitematic(int i);
+    /**
+     * Builds the SchematicPlacement with the given name. Requires a valid name.
+     *
+     * @param placementName name of the SchematicPlacement that should be built
+     */
+    void buildOpenLitematic(String placementName);
 
     void pause();
 

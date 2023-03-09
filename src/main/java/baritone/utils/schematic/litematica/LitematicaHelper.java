@@ -17,15 +17,18 @@
 
 package baritone.utils.schematic.litematica;
 
-import baritone.utils.schematic.format.defaults.LitematicaSchematic;
+import baritone.Baritone;
+import baritone.api.schematic.IStaticSchematic;
 import fi.dy.masa.litematica.Litematica;
+import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.data.DataManager;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
+import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
+import fi.dy.masa.malilib.util.position.IntBoundingBox;
 import net.minecraft.util.math.Vec3i;
 
-import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Helper class that provides access or processes data related to Litmatica schematics.
@@ -48,168 +51,60 @@ public final class LitematicaHelper {
     }
 
     /**
-     * @return if there are loaded schematics.
+     * @return if the installed version of litematica is compatible
      */
-    public static boolean hasLoadedSchematic() {
-        return DataManager.getSchematicPlacementManager().getAllSchematicsPlacements().size() > 0;
+    public static boolean LitematicaVersionChecker() {
+        String[] version = Reference.MOD_VERSION.split("\\.");
+        return Integer.getInteger(version[1]) >= 31;
     }
 
     /**
-     * @param i index of the Schematic in the schematic placement list.
-     * @return the name of the requested schematic.
+     * @return List of Names of SchematicPlacements.
      */
-    public static String getName(int i) {
-        return DataManager.getSchematicPlacementManager().getAllSchematicsPlacements().get(i).getName();
-    }
-
-    /**
-     * @param i index of the Schematic in the schematic placement list.
-     * @return the world coordinates of the schematic origin. This can but does not have to be the minimum corner.
-     */
-    public static Vec3i getOrigin(int i) {
-        return DataManager.getSchematicPlacementManager().getAllSchematicsPlacements().get(i).getOrigin();
-    }
-
-    /**
-     * @param i index of the Schematic in the schematic placement list.
-     * @return Filepath of the schematic file.
-     */
-    public static File getSchematicFile(int i) {
-        return DataManager.getSchematicPlacementManager().getAllSchematicsPlacements().get(i).getSchematicFile();
-    }
-
-    /**
-     * @param i index of the Schematic in the schematic placement list.
-     * @return rotation of the schematic placement.
-     */
-    public static Rotation getRotation(int i) {
-        return DataManager.getSchematicPlacementManager().getAllSchematicsPlacements().get(i).getRotation();
-    }
-
-    /**
-     * @param i index of the Schematic in the schematic placement list.
-     * @return the mirroring of the schematic placement.
-     */
-    public static Mirror getMirror(int i) {
-        return DataManager.getSchematicPlacementManager().getAllSchematicsPlacements().get(i).getMirror();
-    }
-
-    /**
-     * @param schematic original schematic.
-     * @param i         index of the Schematic in the schematic placement list.
-     * @return the minimum corner coordinates of the schematic, after the original schematic got rotated and mirrored.
-     */
-    public static Vec3i getCorrectedOrigin(LitematicaSchematic schematic, int i) {
-        int x = LitematicaHelper.getOrigin(i).getX();
-        int y = LitematicaHelper.getOrigin(i).getY();
-        int z = LitematicaHelper.getOrigin(i).getZ();
-        int mx = schematic.getOffsetMinCorner().getX();
-        int my = schematic.getOffsetMinCorner().getY();
-        int mz = schematic.getOffsetMinCorner().getZ();
-        int sx = (schematic.getX() - 1) * -1;
-        int sz = (schematic.getZ() - 1) * -1;
-
-        Vec3i correctedOrigin;
-        Mirror mirror = LitematicaHelper.getMirror(i);
-        Rotation rotation = LitematicaHelper.getRotation(i);
-
-        //todo there has to be a better way to do this but i cant finde it atm
-        switch (mirror) {
-            case FRONT_BACK:
-            case LEFT_RIGHT:
-                switch ((mirror.ordinal() * 2 + rotation.ordinal()) % 4) {
-                    case 1:
-                        correctedOrigin = new Vec3i(x + (sz - mz), y + my, z + (sx - mx));
-                        break;
-                    case 2:
-                        correctedOrigin = new Vec3i(x + mx, y + my, z + (sz - mz));
-                        break;
-                    case 3:
-                        correctedOrigin = new Vec3i(x + mz, y + my, z + mx);
-                        break;
-                    default:
-                        correctedOrigin = new Vec3i(x + (sx - mx), y + my, z + mz);
-                        break;
-                }
-                break;
-            default:
-                switch (rotation) {
-                    case CLOCKWISE_90:
-                        correctedOrigin = new Vec3i(x + (sz - mz), y + my, z + mx);
-                        break;
-                    case CLOCKWISE_180:
-                        correctedOrigin = new Vec3i(x + (sx - mx), y + my, z + (sz - mz));
-                        break;
-                    case COUNTERCLOCKWISE_90:
-                        correctedOrigin = new Vec3i(x + mz, y + my, z + (sx - mx));
-                        break;
-                    default:
-                        correctedOrigin = new Vec3i(x + mx, y + my, z + mz);
-                        break;
-                }
+    public static List<String> getSchematicPlacementNames() {
+        List<String> SchematicPlacementNames = new ArrayList<>();
+        for (SchematicPlacement placement : DataManager.getSchematicPlacementManager().getAllSchematicPlacements()) {
+            SchematicPlacementNames.add(placement.getName());
         }
-        return correctedOrigin;
+        return SchematicPlacementNames;
     }
 
     /**
-     * @param in     the xyz offsets of the block relative to the schematic minimum corner.
-     * @param sizeX  size of the schematic in the x-axis direction.
-     * @param sizeZ  size of the schematic in the z-axis direction.
-     * @param mirror the mirroring of the schematic placement.
-     * @return the corresponding xyz coordinates after mirroring them according to the given mirroring.
+     * @param name Name of the desired SchematicPlacement.
+     * @return SchematicPlacement with matching name. If a no match is found returns null.
+     * @throws IllegalArgumentException If the provided String isn't a valid name.
      */
-    public static Vec3i doMirroring(Vec3i in, int sizeX, int sizeZ, Mirror mirror) {
-        int xOut = in.getX();
-        int zOut = in.getZ();
-        if (mirror == Mirror.LEFT_RIGHT) {
-            zOut = sizeZ - in.getZ();
-        } else if (mirror == Mirror.FRONT_BACK) {
-            xOut = sizeX - in.getX();
-        }
-        return new Vec3i(xOut, in.getY(), zOut);
-    }
+     public static SchematicPlacement getPlacement(String name) throws IllegalArgumentException {
 
-    /**
-     * @param in    the xyz offsets of the block relative to the schematic minimum corner.
-     * @param sizeX size of the schematic in the x-axis direction.
-     * @param sizeZ size of the schematic in the z-axis direction.
-     * @return the corresponding xyz coordinates after rotation them 90° clockwise.
-     */
-    public static Vec3i rotate(Vec3i in, int sizeX, int sizeZ) {
-        return new Vec3i(sizeX - (sizeX - sizeZ) - in.getZ(), in.getY(), in.getX());
-    }
-
-    /**
-     * IDFK this just grew and it somehow works. If you understand how, pls tell me.
-     *
-     * @param schemIn give in the original schematic.
-     * @param i       index of the Schematic in the schematic placement list.
-     * @return get it out rotated and mirrored.
-     */
-    public static LitematicaSchematic blackMagicFuckery(LitematicaSchematic schemIn, int i) {
-        LitematicaSchematic tempSchem = schemIn.getCopy(LitematicaHelper.getRotation(i).ordinal() % 2 == 1);
-        for (int yCounter = 0; yCounter < schemIn.getY(); yCounter++) {
-            for (int zCounter = 0; zCounter < schemIn.getZ(); zCounter++) {
-                for (int xCounter = 0; xCounter < schemIn.getX(); xCounter++) {
-                    Vec3i xyzHolder = new Vec3i(xCounter, yCounter, zCounter);
-                    xyzHolder = LitematicaHelper.doMirroring(xyzHolder, schemIn.getX() - 1, schemIn.getZ() - 1, LitematicaHelper.getMirror(i));
-                    for (int turns = 0; turns < LitematicaHelper.getRotation(i).ordinal(); turns++) {
-                        if ((turns % 2) == 0) {
-                            xyzHolder = LitematicaHelper.rotate(xyzHolder, schemIn.getX() - 1, schemIn.getZ() - 1);
-                        } else {
-                            xyzHolder = LitematicaHelper.rotate(xyzHolder, schemIn.getZ() - 1, schemIn.getX() - 1);
-                        }
-                    }
-                    IBlockState state = schemIn.getDirect(xCounter, yCounter, zCounter);
-                    try {
-                        state = state.withMirror(LitematicaHelper.getMirror(i)).withRotation(LitematicaHelper.getRotation(i));
-                    } catch (NullPointerException e) {
-                        //nothing to worry about it's just a hole in the schematic.
-                    }
-                    tempSchem.setDirect(xyzHolder.getX(), xyzHolder.getY(), xyzHolder.getZ(), state);
-                }
+        for (SchematicPlacement placement: DataManager.getSchematicPlacementManager().getAllSchematicPlacements()) {
+            if (Objects.equals(placement.getName(), name)) {
+                return placement;
             }
         }
-        return tempSchem;
+        throw new IllegalArgumentException("Name does not correspond to a existing schematic placement.");
+    }
+
+    /**
+     * Checks the settings if min or max coordinates are used by baritone and returns the origin accordingly.
+     *
+     * @param placementName The name of the placement of which the origin coordinates are required.
+     * @return Vec3i With the desired origin coordinates.
+     */
+    public static Vec3i getOrigin(String placementName) {
+        IntBoundingBox box = LitematicaHelper.getPlacement(placementName).getEnclosingBox();
+        int x = Baritone.settings().schematicOrientationX.value ? box.getMaxX() : box.getMinX();
+        int y = Baritone.settings().schematicOrientationY.value ? box.getMaxY() : box.getMinY();
+        int z = Baritone.settings().schematicOrientationZ.value ? box.getMaxZ() : box.getMinZ();
+        return new Vec3i(x, y, z);
+    }
+
+    /**
+     * Leave all hope behind. Here will be dragons.
+     *
+     * @param placementName input.
+     * @return IDK what this will return.
+     */
+    public static IStaticSchematic getSchematic(String placementName) {
+        return new LitematicaAdapter(LitematicaHelper.getPlacement(placementName));
     }
 }

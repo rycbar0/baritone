@@ -15,25 +15,15 @@
  * along with Baritone.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fi.dy.masa.litematica.schematic.placement;
+package fi.dy.masa.litematica.schematic;
 
-import fi.dy.masa.litematica.schematic.ISchematic;
-import fi.dy.masa.litematica.selection.SelectionBox;
-import fi.dy.masa.malilib.util.data.EnabledCondition;
-import fi.dy.masa.malilib.util.position.IntBoundingBox;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
-public class SchematicPlacement extends BasePlacement {
+public interface ISchematic {
 
-    public IntBoundingBox getEnclosingBox() {
-        return null;
-    }
+    ImmutableList<String> getRegionNames();
 
-    public ISchematic getSchematic() {
-        return null;
-    }
-
-    public SelectionBox getSubRegionBox(String regionName, EnabledCondition condition) {
-        return null;
-    }
+    ImmutableMap<String, ISchematicRegion> getRegions();
 
 }

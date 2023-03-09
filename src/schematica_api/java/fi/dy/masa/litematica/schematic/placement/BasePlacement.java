@@ -17,23 +17,13 @@
 
 package fi.dy.masa.litematica.schematic.placement;
 
-import fi.dy.masa.litematica.schematic.ISchematic;
-import fi.dy.masa.litematica.selection.SelectionBox;
-import fi.dy.masa.malilib.util.data.EnabledCondition;
-import fi.dy.masa.malilib.util.position.IntBoundingBox;
+import net.minecraft.util.math.BlockPos;
 
-public class SchematicPlacement extends BasePlacement {
+public class BasePlacement {
+    protected String name;
+    protected BlockPos origin;
 
-    public IntBoundingBox getEnclosingBox() {
-        return null;
+    public String getName() {
+        return this.name;
     }
-
-    public ISchematic getSchematic() {
-        return null;
-    }
-
-    public SelectionBox getSubRegionBox(String regionName, EnabledCondition condition) {
-        return null;
-    }
-
 }

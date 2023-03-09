@@ -44,7 +44,6 @@ import baritone.utils.PathingCommandContext;
 import baritone.utils.schematic.MapArtSchematic;
 import baritone.utils.schematic.SchematicSystem;
 import baritone.utils.schematic.SelectionSchematic;
-import baritone.utils.schematic.format.defaults.LitematicaSchematic;
 import baritone.utils.schematic.litematica.LitematicaHelper;
 import baritone.utils.schematic.schematica.SchematicaHelper;
 import com.google.common.collect.ImmutableMap;
@@ -56,15 +55,12 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.*;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -204,31 +200,21 @@ public final class BuilderProcess extends BaritoneProcessHelper implements IBuil
         }
     }
 
-    /**
-     * Builds the with index 'i' given schematic placement.
-     *
-     * @param i index reference to the schematic placement list.
-     */
     @Override
-    public void buildOpenLitematic(int i) {
-        if (LitematicaHelper.isLitematicaPresent()) {
-            //if java.lang.NoSuchMethodError is thrown see comment in SchematicPlacementManager
-            if (LitematicaHelper.hasLoadedSchematic()) {
-                String name = LitematicaHelper.getName(i);
-                try {
-                    LitematicaSchematic schematic1 = new LitematicaSchematic(CompressedStreamTools.readCompressed(Files.newInputStream(LitematicaHelper.getSchematicFile(i).toPath())), false);
-                    Vec3i correctedOrigin = LitematicaHelper.getCorrectedOrigin(schematic1, i);
-                    ISchematic schematic2 = LitematicaHelper.blackMagicFuckery(schematic1, i);
-                    schematic2 = applyMapArtAndSelection(origin, (IStaticSchematic) schematic2);
-                    build(name, schematic2, correctedOrigin);
-                } catch (IOException e) {
-                    logDirect("Schematic File could not be loaded.");
-                }
-            } else {
-                logDirect("No schematic currently loaded");
+    public void buildOpenLitematic(String placementName) {
+        try {
+            String name = placementName;
+            ISchematic schematic = LitematicaHelper.getSchematic(placementName);
+            Vec3i origin = LitematicaHelper.getOrigin(placementName);
+
+            schematic = applyMapArtAndSelection(origin, (IStaticSchematic) schematic);
+            try {
+                build(name, schematic, origin);
+            } catch (Exception e) {
+                logDirect("Urusai!");
             }
-        } else {
-            logDirect("Litematica is not present");
+        } catch (Exception e) {
+            logDirect("I trusted you and you betrayed me.");
         }
     }
 

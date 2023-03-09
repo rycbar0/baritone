@@ -17,15 +17,25 @@
 
 package fi.dy.masa.litematica.schematic.placement;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SchematicPlacementManager {
     private final List<SchematicPlacement> schematicPlacements = new ArrayList<>();
+    SchematicPlacement selectedPlacement;
 
-    //in case of a java.lang.NoSuchMethodError try change the name of this method to getAllSchematicPlacements()
-    //there are inconsistencies in the litematica mod about the naming of this method
-    public List<SchematicPlacement> getAllSchematicsPlacements() {
+    public List<SchematicPlacement> getAllSchematicPlacements() {
         return schematicPlacements;
     }
+
+    //todo
+    //if no argument is provided instead of the first placement in the list we could use the selected placement.
+    //however the nullable annotation worries me a bit.
+    @Nullable
+    public SchematicPlacement getSelectedSchematicPlacement()
+    {
+        return this.selectedPlacement;
+    }
+
 }

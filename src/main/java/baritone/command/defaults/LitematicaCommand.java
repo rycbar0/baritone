@@ -21,6 +21,7 @@ import baritone.api.IBaritone;
 import baritone.api.command.Command;
 import baritone.api.command.argument.IArgConsumer;
 import baritone.api.command.exception.CommandException;
+import baritone.utils.schematic.litematica.LitematicaHelper;
 
 import java.util.Arrays;
 import java.util.List;
@@ -34,23 +35,37 @@ public class LitematicaCommand extends Command {
 
     @Override
     public void execute(String label, IArgConsumer args) throws CommandException {
-        int schematic = 0;
-        if (args.hasAny()) {
-            args.requireMax(1);
-            if (args.is(Integer.class)) {
-                schematic = args.getAs(Integer.class) - 1;
-            }
-        }
         try {
-            baritone.getBuilderProcess().buildOpenLitematic(schematic);
-        } catch (IndexOutOfBoundsException e) {
-            logDirect("Pleas provide a valid index.");
+            if(LitematicaHelper.isLitematicaPresent()) {
+                if (!LitematicaHelper.LitematicaVersionChecker()) {
+                    logDirect("This implementation requires the rewrite version of Litematica. (version 0.31.0+)");
+                } else {
+                    List<String> placementNames = LitematicaHelper.getSchematicPlacementNames();
+                    if (placementNames.isEmpty()) {
+                        logDirect("You need to make a Schematic Placement first.");
+                    } else if (args.hasAny()) {
+                        //maybe we could allow for multiple placements to be built at the same time but that is low priority for me atm.
+                        args.requireMax(1);
+                        if (placementNames.contains(args.peekString())) {
+                            baritone.getBuilderProcess().buildOpenLitematic(args.getString());
+                        } else {
+                            logDirect("Pleas provide a valid name for a schematic placement.");
+                        }
+                    } else {
+                        baritone.getBuilderProcess().buildOpenLitematic(placementNames.get(0));
+                    }
+                }
+            } else {
+                logDirect("You cant use this command without the litematica mod, baka.");
+            }
+        } catch (Exception e) {
+            logDirect("You should not see this. Something went wrong :/");
         }
     }
 
     @Override
     public Stream<String> tabComplete(String label, IArgConsumer args) {
-        return Stream.empty();
+        return LitematicaHelper.getSchematicPlacementNames().stream();
     }
 
     @Override
@@ -65,7 +80,7 @@ public class LitematicaCommand extends Command {
                 "",
                 "Usage:",
                 "> litematica",
-                "> litematica <#>"
+                "> litematica <placement name>"
         );
     }
 }
