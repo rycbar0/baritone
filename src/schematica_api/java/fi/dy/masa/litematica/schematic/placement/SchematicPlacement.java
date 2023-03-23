@@ -17,10 +17,17 @@
 
 package fi.dy.masa.litematica.schematic.placement;
 
+import com.google.common.collect.ImmutableMap;
+import fi.dy.masa.litematica.Litematica;
+import fi.dy.masa.litematica.materials.MaterialListBase;
 import fi.dy.masa.litematica.schematic.ISchematic;
+import fi.dy.masa.litematica.schematic.LitematicaSchematic;
 import fi.dy.masa.litematica.selection.SelectionBox;
 import fi.dy.masa.malilib.util.data.EnabledCondition;
 import fi.dy.masa.malilib.util.position.IntBoundingBox;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SchematicPlacement extends BasePlacement {
 
@@ -28,11 +35,28 @@ public class SchematicPlacement extends BasePlacement {
         return null;
     }
 
-    public ISchematic getSchematic() {
+    //todo use ISchematic as return type
+    public LitematicaSchematic getSchematic() {
+        return null;
+    }
+
+    public ImmutableMap<String, SelectionBox> getSubRegionBoxes(EnabledCondition condition) {
         return null;
     }
 
     public SelectionBox getSubRegionBox(String regionName, EnabledCondition condition) {
+        return null;
+    }
+
+    public MaterialListBase getMaterialList() {
+        return null;
+    }
+
+    public List<SubRegionPlacement> getAllSubRegions() {
+        return null;
+    }
+
+    public List<SubRegionPlacement> getEnabledSubRegions() {
         return null;
     }
 

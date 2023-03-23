@@ -23,6 +23,7 @@ import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
 import fi.dy.masa.malilib.util.data.EnabledCondition;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 
 import java.util.List;
@@ -64,13 +65,15 @@ public class LitematicaAdapter implements IStaticSchematic {
 
     @Override
     public IBlockState getDirect(int x, int y, int z) {
-        IBlockState blockState = Blocks.AIR.getDefaultState();
+        /*IBlockState blockState = Blocks.AIR.getDefaultState();
         for (ISchematicRegion schematicRegion : placement.getSchematic().getRegions().values()) {
             if (schematicRegion != null) {
                 IBlockState temp = schematicRegion.getBlockStateContainer().getBlockState(x, y, z);
                 blockState = temp == Blocks.AIR.getDefaultState() ? blockState : temp;
             }
         }
-        return blockState;
+        return blockState;/**/
+
+        return LitematicaHelper.getSchematicWorld().getBlockState(new BlockPos(x,y,z));
     }
 }

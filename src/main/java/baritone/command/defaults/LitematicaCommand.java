@@ -35,8 +35,10 @@ public class LitematicaCommand extends Command {
 
     @Override
     public void execute(String label, IArgConsumer args) throws CommandException {
+        //todo this try catch is a safty net that should not be required in the final product
         try {
             if(LitematicaHelper.isLitematicaPresent()) {
+                //todo version check should no longer be nessesairy after releas
                 if (!LitematicaHelper.LitematicaVersionChecker()) {
                     logDirect("This implementation requires the rewrite version of Litematica. (version 0.31.0+)");
                 } else {
@@ -60,6 +62,7 @@ public class LitematicaCommand extends Command {
             }
         } catch (Exception e) {
             logDirect("You should not see this. Something went wrong :/");
+            throw e;
         }
     }
 

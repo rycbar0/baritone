@@ -19,14 +19,20 @@ package fi.dy.masa.litematica.schematic.placement;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class SchematicPlacementManager {
     private final List<SchematicPlacement> schematicPlacements = new ArrayList<>();
+    protected final Set<SchematicPlacement> allVisibleSchematicPlacements = new HashSet<>();
     SchematicPlacement selectedPlacement;
 
     public List<SchematicPlacement> getAllSchematicPlacements() {
         return schematicPlacements;
+    }
+    public Set<SchematicPlacement> getVisibleSchematicPlacements() {
+        return this.allVisibleSchematicPlacements;
     }
 
     //todo

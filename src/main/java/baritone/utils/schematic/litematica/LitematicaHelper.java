@@ -23,8 +23,10 @@ import fi.dy.masa.litematica.Litematica;
 import fi.dy.masa.litematica.Reference;
 import fi.dy.masa.litematica.data.DataManager;
 import fi.dy.masa.litematica.schematic.placement.SchematicPlacement;
+import fi.dy.masa.litematica.world.SchematicWorldHandler;
 import fi.dy.masa.malilib.util.position.IntBoundingBox;
 import net.minecraft.util.math.Vec3i;
+import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -106,5 +108,9 @@ public final class LitematicaHelper {
      */
     public static IStaticSchematic getSchematic(String placementName) {
         return new LitematicaAdapter(LitematicaHelper.getPlacement(placementName));
+    }
+
+    public static World getSchematicWorld() {
+        return SchematicWorldHandler.getSchematicWorld();
     }
 }
