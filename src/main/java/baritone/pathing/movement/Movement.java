@@ -35,7 +35,7 @@ import java.util.*;
 
 public abstract class Movement implements IMovement, MovementHelper {
 
-    public static final EnumFacing[] HORIZONTALS_BUT_ALSO_DOWN_____SO_EVERY_DIRECTION_EXCEPT_UP = {EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.EAST, EnumFacing.WEST, EnumFacing.DOWN};
+    public static final EnumFacing[] EVERY_DIRECTION_EXCEPT_UP = {EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.EAST, EnumFacing.WEST, EnumFacing.DOWN}; // Refactor - Why is this like this??
 
     protected final IBaritone baritone;
     protected final IPlayerContext ctx;
@@ -125,7 +125,7 @@ public abstract class Movement implements IMovement, MovementHelper {
     public MovementStatus update() {
         ctx.player().capabilities.isFlying = false;
         currentState = updateState(currentState);
-        if (MovementHelper.isLiquid(ctx, ctx.playerFeet())) {
+        if (MovementHelper.isLiquid(ctx, ctx.playerFeet()) && !MovementHelper.isRidingBoat(ctx)) { // Boat Support
             currentState.setInput(Input.JUMP, true);
         }
         if (ctx.player().isEntityInsideOpaqueBlock()) {

@@ -61,7 +61,7 @@ public class MovementParkour extends Movement {
     }
 
     public static void cost(CalculationContext context, int x, int y, int z, EnumFacing dir, MutableMoveResult res) {
-        if (!context.allowParkour) {
+        if (!context.allowParkour || MovementHelper.isRidingBoat(context) && Baritone.settings().waterPathInBoat.value) { // Boat Support
             return;
         }
         if (y == 256 && !context.allowJumpAt256) {
@@ -184,9 +184,9 @@ public class MovementParkour extends Movement {
                 continue;
             }
             for (int j = 0; j < 5; j++) {
-                int againstX = destX + HORIZONTALS_BUT_ALSO_DOWN_____SO_EVERY_DIRECTION_EXCEPT_UP[j].getXOffset();
-                int againstY = y - 1 + HORIZONTALS_BUT_ALSO_DOWN_____SO_EVERY_DIRECTION_EXCEPT_UP[j].getYOffset();
-                int againstZ = destZ + HORIZONTALS_BUT_ALSO_DOWN_____SO_EVERY_DIRECTION_EXCEPT_UP[j].getZOffset();
+                int againstX = destX + EVERY_DIRECTION_EXCEPT_UP[j].getXOffset();
+                int againstY = y - 1 + EVERY_DIRECTION_EXCEPT_UP[j].getYOffset();
+                int againstZ = destZ + EVERY_DIRECTION_EXCEPT_UP[j].getZOffset();
                 if (againstX == destX - xDiff && againstZ == destZ - zDiff) { // we can't turn around that fast
                     continue;
                 }

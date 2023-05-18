@@ -66,6 +66,9 @@ public class MovementAscend extends Movement {
     }
 
     public static double cost(CalculationContext context, int x, int y, int z, int destX, int destZ) {
+        if (MovementHelper.isRidingBoat(context) && Baritone.settings().waterPathInBoat.value) { // Boat Support - Can't 'ascend' in boats
+            return COST_INF;
+        }
         IBlockState toPlace = context.get(destX, y, destZ);
         double additionalPlacementCost = 0;
         if (!MovementHelper.canWalkOn(context, destX, y, destZ, toPlace)) {
@@ -78,9 +81,9 @@ public class MovementAscend extends Movement {
             }
             boolean foundPlaceOption = false;
             for (int i = 0; i < 5; i++) {
-                int againstX = destX + HORIZONTALS_BUT_ALSO_DOWN_____SO_EVERY_DIRECTION_EXCEPT_UP[i].getXOffset();
-                int againstY = y + HORIZONTALS_BUT_ALSO_DOWN_____SO_EVERY_DIRECTION_EXCEPT_UP[i].getYOffset();
-                int againstZ = destZ + HORIZONTALS_BUT_ALSO_DOWN_____SO_EVERY_DIRECTION_EXCEPT_UP[i].getZOffset();
+                int againstX = destX + EVERY_DIRECTION_EXCEPT_UP[i].getXOffset();
+                int againstY = y + EVERY_DIRECTION_EXCEPT_UP[i].getYOffset();
+                int againstZ = destZ + EVERY_DIRECTION_EXCEPT_UP[i].getZOffset();
                 if (againstX == x && againstZ == z) { // we might be able to backplace now, but it doesn't matter because it will have been broken by the time we'd need to use it
                     continue;
                 }

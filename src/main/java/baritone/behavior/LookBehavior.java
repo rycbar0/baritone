@@ -23,6 +23,10 @@ import baritone.api.behavior.ILookBehavior;
 import baritone.api.event.events.PlayerUpdateEvent;
 import baritone.api.event.events.RotationMoveEvent;
 import baritone.api.utils.Rotation;
+import baritone.pathing.movement.MovementHelper;
+import net.minecraft.client.renderer.Vector3d;
+import net.minecraft.entity.item.EntityBoat;
+import org.lwjgl.input.Keyboard;
 
 public final class LookBehavior extends Behavior implements ILookBehavior {
 
@@ -97,9 +101,26 @@ public final class LookBehavior extends Behavior implements ILookBehavior {
         }
     }
 
-    public void pig() {
+    public void riding() { // Boat Support - pig -> riding
         if (this.target != null) {
-            ctx.player().rotationYaw = this.target.getYaw();
+            // Boat Support
+            if (ctx.player().getRidingEntity() != null
+                    && ctx.player().getRidingEntity() instanceof EntityBoat
+            ) {
+                EntityBoat boat = (EntityBoat) ctx.player().getRidingEntity();
+                assert boat != null;
+
+                boat.rotationYaw = Math.round(this.target.getYaw() / 45) * 45;;
+
+                // Also adjust the player's rotation with a smaller influence
+                ctx.player().rotationYaw = MovementHelper.smoothRotation(
+                        ctx.player().rotationYaw,
+                        this.target.getYaw(),
+                        0.15f
+                );
+            } else {
+                ctx.player().rotationYaw = this.target.getYaw();
+            }
         }
     }
 

@@ -641,6 +641,12 @@ public final class Settings {
     public final Setting<Boolean> chatDebug = new Setting<>(false);
 
     /**
+     * Print all the open set path finding messages to console
+     */
+    // TODO - consoleDebug
+    public final Setting<Boolean> openSetDebug = new Setting<>(false);
+
+    /**
      * Allow chat based control of Baritone. Most likely should be disabled when Baritone is imported for use in
      * something else
      */
@@ -738,6 +744,11 @@ public final class Settings {
      * Continue sprinting while in water
      */
     public final Setting<Boolean> sprintInWater = new Setting<>(true);
+
+    /**
+     * Use path find water blocks if we are in a boat
+     */
+    public final Setting<Boolean> waterPathInBoat = new Setting<>(true); // Boat Support
 
     /**
      * When GetToBlockProcess or MineProcess fails to calculate a path, instead of just giving up, mark the closest instance

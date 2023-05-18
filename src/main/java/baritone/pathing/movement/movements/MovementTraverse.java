@@ -75,11 +75,12 @@ public class MovementTraverse extends Movement {
         Block srcDownBlock = srcDown.getBlock();
         boolean standingOnABlock = MovementHelper.mustBeSolidToWalkOn(context, x, y - 1, z, srcDown);
         boolean frostWalker = standingOnABlock && !context.assumeWalkOnWater && MovementHelper.canUseFrostWalker(context, destOn);
-        if (frostWalker || MovementHelper.canWalkOn(context, destX, y - 1, destZ, destOn)) { //this is a walk, not a bridge
+        boolean ridingBoat = MovementHelper.isRidingBoat(context) && Baritone.settings().waterPathInBoat.value; // Boat Support
+        if (frostWalker || ridingBoat || MovementHelper.canWalkOn(context, destX, y - 1, destZ, destOn)) { //this is a walk, not a bridge
             double WC = WALK_ONE_BLOCK_COST;
             boolean water = false;
             if (MovementHelper.isWater(pb0.getBlock()) || MovementHelper.isWater(pb1.getBlock())) {
-                WC = context.waterWalkSpeed;
+                WC = ridingBoat ? WALK_ONE_BLOCK_COST / 3 : context.waterWalkSpeed; // Boat Support - Assuming boats move thrice as fast
                 water = true;
             } else {
                 if (destOn.getBlock() == Blocks.SOUL_SAND) {
@@ -92,6 +93,9 @@ public class MovementTraverse extends Movement {
                 if (srcDownBlock == Blocks.SOUL_SAND) {
                     WC += (WALK_ONE_OVER_SOUL_SAND_COST - WALK_ONE_BLOCK_COST) / 2;
                 }
+            }
+            if (ridingBoat) { // Boat Support
+                return WC;
             }
             double hardness1 = MovementHelper.getMiningDurationTicks(context, destX, y, destZ, pb1, false);
             if (hardness1 >= COST_INF) {
@@ -133,9 +137,9 @@ public class MovementTraverse extends Movement {
                 double hardness2 = MovementHelper.getMiningDurationTicks(context, destX, y + 1, destZ, pb0, true); // only include falling on the upper block to break
                 double WC = throughWater ? context.waterWalkSpeed : WALK_ONE_BLOCK_COST;
                 for (int i = 0; i < 5; i++) {
-                    int againstX = destX + HORIZONTALS_BUT_ALSO_DOWN_____SO_EVERY_DIRECTION_EXCEPT_UP[i].getXOffset();
-                    int againstY = y - 1 + HORIZONTALS_BUT_ALSO_DOWN_____SO_EVERY_DIRECTION_EXCEPT_UP[i].getYOffset();
-                    int againstZ = destZ + HORIZONTALS_BUT_ALSO_DOWN_____SO_EVERY_DIRECTION_EXCEPT_UP[i].getZOffset();
+                    int againstX = destX + EVERY_DIRECTION_EXCEPT_UP[i].getXOffset();
+                    int againstY = y - 1 + EVERY_DIRECTION_EXCEPT_UP[i].getYOffset();
+                    int againstZ = destZ + EVERY_DIRECTION_EXCEPT_UP[i].getZOffset();
                     if (againstX == x && againstZ == z) { // this would be a backplace
                         continue;
                     }
