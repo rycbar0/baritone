@@ -21,6 +21,7 @@ import baritone.Baritone;
 import baritone.api.Settings;
 import baritone.api.behavior.ILookBehavior;
 import baritone.api.event.events.PlayerUpdateEvent;
+import baritone.api.event.events.RiddenBoatEvent;
 import baritone.api.event.events.RotationMoveEvent;
 import baritone.api.utils.Rotation;
 import baritone.pathing.movement.MovementHelper;
@@ -101,26 +102,32 @@ public final class LookBehavior extends Behavior implements ILookBehavior {
         }
     }
 
+    // TODO - Anti Cheat Compatibility
+    @Override
+    public void onBoatRidden(RiddenBoatEvent event) {
+        if (this.target == null || !MovementHelper.isRidingBoat(ctx)) {
+            return;
+        }
+
+        event.setDesiredYaw(target.getYaw());
+
+        event.cancel();
+
+        if (!Baritone.settings().freeLook.value) {
+            ctx.player().rotationYaw = MovementHelper.smoothRotation(
+                    ctx.player().rotationYaw,
+                    event.getBoat().rotationYaw,
+                    0.015f
+            );
+        }
+
+        event.getBoat().rotationYaw = ctx.player().rotationYaw;
+    }
+
     public void riding() { // Boat Support - pig -> riding
-        if (this.target != null) {
-            // Boat Support
-            if (ctx.player().getRidingEntity() != null
-                    && ctx.player().getRidingEntity() instanceof EntityBoat
-            ) {
-                EntityBoat boat = (EntityBoat) ctx.player().getRidingEntity();
-                assert boat != null;
-
-                boat.rotationYaw = Math.round(this.target.getYaw() / 45) * 45;;
-
-                // Also adjust the player's rotation with a smaller influence
-                ctx.player().rotationYaw = MovementHelper.smoothRotation(
-                        ctx.player().rotationYaw,
-                        this.target.getYaw(),
-                        0.15f
-                );
-            } else {
-                ctx.player().rotationYaw = this.target.getYaw();
-            }
+        if (this.target != null && !MovementHelper.isRidingBoat(ctx)) {
+            // TODO - Fix this pretty much assuming pigs or boats as the only riding conditions
+            ctx.player().rotationYaw = this.target.getYaw();
         }
     }
 

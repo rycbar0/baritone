@@ -71,4 +71,7 @@ public interface AbstractGameEventListener extends IGameEventListener {
 
     @Override
     default void onPathEvent(PathEvent event) {}
+
+    @Override // Boat Support
+    default void onBoatRidden(RiddenBoatEvent event) {}
 }

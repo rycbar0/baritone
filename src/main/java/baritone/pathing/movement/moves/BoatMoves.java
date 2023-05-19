@@ -32,51 +32,51 @@ import net.minecraft.util.EnumFacing;
 // TODO - Calculate for size of boat
 public enum BoatMoves implements IMoves {
 
-    TRAVERSE_NORTH(0, 0, -1) {
+    TRAVERSE_NORTH(0, 0, -2) {
         @Override
         public Movement apply0(CalculationContext context, BetterBlockPos src) {
-            return new MovementTraverse(context.getBaritone(), src, src.north(1));
+            return new MovementTraverse(context.getBaritone(), src, src.north(2));
         }
 
         @Override
         public double cost(CalculationContext context, int x, int y, int z) {
-            return MovementTraverse.cost(context, x, y, z, x, z - 1);
+            return MovementTraverse.cost(context, x, y, z, x, z - 2);
         }
     },
 
-    TRAVERSE_SOUTH(0, 0, +1) {
+    TRAVERSE_SOUTH(0, 0, +2) {
         @Override
         public Movement apply0(CalculationContext context, BetterBlockPos src) {
-            return new MovementTraverse(context.getBaritone(), src, src.south(1));
+            return new MovementTraverse(context.getBaritone(), src, src.south(2));
         }
 
         @Override
         public double cost(CalculationContext context, int x, int y, int z) {
-            return MovementTraverse.cost(context, x, y, z, x, z + 1);
+            return MovementTraverse.cost(context, x, y, z, x, z + 2);
         }
     },
 
-    TRAVERSE_EAST(+1, 0, 0) {
+    TRAVERSE_EAST(+2, 0, 0) {
         @Override
         public Movement apply0(CalculationContext context, BetterBlockPos src) {
-            return new MovementTraverse(context.getBaritone(), src, src.east(1));
+            return new MovementTraverse(context.getBaritone(), src, src.east(2));
         }
 
         @Override
         public double cost(CalculationContext context, int x, int y, int z) {
-            return MovementTraverse.cost(context, x, y, z, x + 1, z);
+            return MovementTraverse.cost(context, x, y, z, x + 2, z);
         }
     },
 
-    TRAVERSE_WEST(-1, 0, 0) {
+    TRAVERSE_WEST(-2, 0, 0) {
         @Override
         public Movement apply0(CalculationContext context, BetterBlockPos src) {
-            return new MovementTraverse(context.getBaritone(), src, src.west(1));
+            return new MovementTraverse(context.getBaritone(), src, src.west(2));
         }
 
         @Override
         public double cost(CalculationContext context, int x, int y, int z) {
-            return MovementTraverse.cost(context, x, y, z, x - 1, z);
+            return MovementTraverse.cost(context, x, y, z, x - 2, z);
         }
     },
 

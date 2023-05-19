@@ -141,19 +141,6 @@ public class MovementDiagonal extends Movement {
             frostWalker &= !context.assumeWalkOnWater || !ridingBoat; // do this after checking for descends because jesus can't prevent the water from freezing, it just prevents us from relying on the water freezing - Boat Support
         }
         double multiplier = WALK_ONE_BLOCK_COST;
-        // Boat Support
-        Block startIn = context.getBlock(x, y, z);
-        boolean water = false;
-        if (MovementHelper.isWater(startIn) || MovementHelper.isWater(destInto.getBlock())) {
-            if (ascend) {
-                return;
-            }
-            // Ignore previous multiplier
-            // Whatever we were walking on (possibly soul sand) doesn't matter as we're actually floating on water
-            // Not even touching the blocks below
-            multiplier = ridingBoat ? WALK_ONE_BLOCK_COST / 3 : context.waterWalkSpeed;
-            water = true;
-        }
         // For either possible soul sand, that affects half of our walking
         if (destWalkOn.getBlock() == Blocks.SOUL_SAND) {
             multiplier += (WALK_ONE_OVER_SOUL_SAND_COST - WALK_ONE_BLOCK_COST) / 2;
@@ -179,7 +166,7 @@ public class MovementDiagonal extends Movement {
         }
         IBlockState pb0 = context.get(x, y, destZ);
         IBlockState pb2 = context.get(destX, y, z);
-        if (ascend && !ridingBoat) {
+        if (ascend && !ridingBoat) { // Boat Support
             boolean ATop = MovementHelper.canWalkThrough(context, x, y + 2, destZ);
             boolean AMid = MovementHelper.canWalkThrough(context, x, y + 1, destZ);
             boolean ALow = MovementHelper.canWalkThrough(context, x, y, destZ, pb0);
@@ -227,6 +214,19 @@ public class MovementDiagonal extends Movement {
         if (optionB == 0 && ((MovementHelper.avoidWalkingInto(pb0.getBlock()) && pb0.getBlock() != Blocks.WATER) || MovementHelper.avoidWalkingInto(pb1.getBlock()))) {
             // and now that option B is fully calculated, see if we can edge around that way
             return;
+        }
+        // Boat Support
+        Block startIn = context.getBlock(x, y, z);
+        boolean water = false;
+        if (MovementHelper.isWater(startIn) || MovementHelper.isWater(destInto.getBlock())) {
+            if (ascend) {
+                return;
+            }
+            // Ignore previous multiplier
+            // Whatever we were walking on (possibly soul sand) doesn't matter as we're actually floating on water
+            // Not even touching the blocks below
+            multiplier = ridingBoat ? WALK_ONE_BLOCK_COST / 3 : context.waterWalkSpeed;
+            water = true;
         }
         if (optionA != 0 || optionB != 0) {
             multiplier *= SQRT_2 - 0.001; // TODO tune
