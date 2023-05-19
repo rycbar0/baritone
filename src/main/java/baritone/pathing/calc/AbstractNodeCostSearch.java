@@ -205,7 +205,7 @@ public abstract class AbstractNodeCostSearch implements IPathFinder, Helper {
                         System.out.println("the path I found is pretty terrible (like sneak-bridging for dozens of blocks)");
                         System.out.println("But I'm going to do it anyway, because yolo");
                     }
-                    System.out.println("Path goes for " + Math.sqrt(dist) + " blocks");
+                    logDebug("Path goes for " + Math.sqrt(dist) + " blocks"); // TODO - Helper#consoleDebug
                     logDebug("A* cost coefficient " + COEFFICIENTS[i]);
                 }
                 return Optional.of(new Path(startNode, bestSoFar[i], numNodes, goal, context));

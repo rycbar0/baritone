@@ -21,8 +21,13 @@ import baritone.Baritone;
 import baritone.api.Settings;
 import baritone.api.behavior.ILookBehavior;
 import baritone.api.event.events.PlayerUpdateEvent;
+import baritone.api.event.events.RiddenBoatEvent;
 import baritone.api.event.events.RotationMoveEvent;
 import baritone.api.utils.Rotation;
+import baritone.pathing.movement.MovementHelper;
+import net.minecraft.client.renderer.Vector3d;
+import net.minecraft.entity.item.EntityBoat;
+import org.lwjgl.input.Keyboard;
 
 public final class LookBehavior extends Behavior implements ILookBehavior {
 
@@ -97,8 +102,31 @@ public final class LookBehavior extends Behavior implements ILookBehavior {
         }
     }
 
-    public void pig() {
-        if (this.target != null) {
+    // TODO - Anti Cheat Compatibility
+    @Override
+    public void onBoatRidden(RiddenBoatEvent event) {
+        if (this.target == null || !MovementHelper.isRidingBoat(ctx)) {
+            return;
+        }
+
+        event.setDesiredYaw(target.getYaw());
+
+        event.cancel();
+
+        if (!Baritone.settings().freeLook.value) {
+            ctx.player().rotationYaw = MovementHelper.smoothRotation(
+                    ctx.player().rotationYaw,
+                    event.getBoat().rotationYaw,
+                    0.015f
+            );
+        }
+
+        event.getBoat().rotationYaw = ctx.player().rotationYaw;
+    }
+
+    public void riding() { // Boat Support - pig -> riding
+        if (this.target != null && !MovementHelper.isRidingBoat(ctx)) {
+            // TODO - Fix this pretty much assuming pigs or boats as the only riding conditions
             ctx.player().rotationYaw = this.target.getYaw();
         }
     }

@@ -37,18 +37,21 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public class MovementTraverse extends Movement {
+// Boat Support
+public class MovementTraverseBoat extends Movement {
 
     /**
      * Did we have to place a bridge block or was it always there
      */
     private boolean wasTheBridgeBlockAlwaysThere = true;
 
-    public MovementTraverse(IBaritone baritone, BetterBlockPos from, BetterBlockPos to) {
-        super(baritone, from, to, new BetterBlockPos[]{to.up(), to}, to.down());
+    public MovementTraverseBoat(IBaritone baritone, BetterBlockPos from, BetterBlockPos to) {
+        super(baritone, from, to, new BetterBlockPos[]{}, to.down());
     }
 
     @Override
@@ -67,7 +70,23 @@ public class MovementTraverse extends Movement {
         return ImmutableSet.of(src, dest);
     }
 
+    // TODO - Kinda works; Kinda, not really.
     public static double cost(CalculationContext context, int x, int y, int z, int destX, int destZ) {
+        int[] widthDirection = MovementHelper.getBoatWidthDirection(context.getBaritone().getPlayerContext());
+        double cost1 = costForOneBlock(context, x, y, z, destX, destZ);
+        double cost2 = costForOneBlock(context,
+                x + widthDirection[0], y,
+                z + widthDirection[1],
+                destX + widthDirection[0],
+                destZ + widthDirection[1]
+        );
+        if (cost1 >= COST_INF || cost2 >= COST_INF) {
+            return COST_INF;
+        }
+        return Math.max(cost1, cost2);
+    }
+
+    private static double costForOneBlock(CalculationContext context, int x, int y, int z, int destX, int destZ) {
         IBlockState pb0 = context.get(destX, y + 1, destZ);
         IBlockState pb1 = context.get(destX, y, destZ);
         IBlockState destOn = context.get(destX, y - 1, destZ);

@@ -137,7 +137,7 @@ public class MixinEntityPlayerSP {
     private void updateRidden(CallbackInfo cb) {
         IBaritone baritone = BaritoneAPI.getProvider().getBaritoneForPlayer((EntityPlayerSP) (Object) this);
         if (baritone != null) {
-            ((LookBehavior) baritone.getLookBehavior()).pig();
+            ((LookBehavior) baritone.getLookBehavior()).riding();
         }
     }
 }

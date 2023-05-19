@@ -25,6 +25,7 @@ import net.minecraft.client.gui.GuiGameOver;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityBoat;
 import net.minecraft.network.Packet;
 
 /**
@@ -139,9 +140,18 @@ public interface IGameEventListener {
     void onPlayerDeath();
 
     /**
-     * When the pathfinder's state changes
+     * Called when the pathfinder's state changes
      *
      * @param event The event
      */
     void onPathEvent(PathEvent event);
+
+    // Boat Support
+
+    /**
+     * Called when the ridden boat is updated
+     *
+     * @param event The event
+     */
+    void onBoatRidden(RiddenBoatEvent event);
 }

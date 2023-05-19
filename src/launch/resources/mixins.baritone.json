@@ -8,6 +8,7 @@
     "maxShiftBy": 2
   },
   "client": [
+    "CPacketVehicleMoveAccessor",
     "MixinAnvilChunkLoader",
     "MixinBitArray",
     "MixinBlockStateContainer",
@@ -16,6 +17,7 @@
     "MixinChunkProviderServer",
     "MixinChunkRenderContainer",
     "MixinChunkRenderWorker",
+    "MixinEntityBoat",
     "MixinEntityLivingBase",
     "MixinEntityPlayerSP",
     "MixinEntityRenderer",

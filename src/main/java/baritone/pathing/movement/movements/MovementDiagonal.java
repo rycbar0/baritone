@@ -119,6 +119,7 @@ public class MovementDiagonal extends Movement {
         IBlockState destWalkOn;
         boolean descend = false;
         boolean frostWalker = false;
+        boolean ridingBoat = MovementHelper.isRidingBoat(context) && Baritone.settings().waterPathInBoat.value; // Boat Support
         if (!MovementHelper.canWalkThrough(context, destX, y, destZ, destInto)) {
             ascend = true;
             if (!context.allowDiagonalAscend || !MovementHelper.canWalkThrough(context, x, y + 2, z) || !MovementHelper.canWalkOn(context, destX, y, destZ, destInto) || !MovementHelper.canWalkThrough(context, destX, y + 2, destZ)) {
@@ -137,7 +138,7 @@ public class MovementDiagonal extends Movement {
                     return;
                 }
             }
-            frostWalker &= !context.assumeWalkOnWater; // do this after checking for descends because jesus can't prevent the water from freezing, it just prevents us from relying on the water freezing
+            frostWalker &= !context.assumeWalkOnWater || !ridingBoat; // do this after checking for descends because jesus can't prevent the water from freezing, it just prevents us from relying on the water freezing - Boat Support
         }
         double multiplier = WALK_ONE_BLOCK_COST;
         // For either possible soul sand, that affects half of our walking
@@ -145,7 +146,7 @@ public class MovementDiagonal extends Movement {
             multiplier += (WALK_ONE_OVER_SOUL_SAND_COST - WALK_ONE_BLOCK_COST) / 2;
         } else if (frostWalker) {
             // frostwalker lets us walk on water without the penalty
-        } else if (destWalkOn.getBlock() == Blocks.WATER) {
+        } else if (destWalkOn.getBlock() == Blocks.WATER && !ridingBoat) {
             multiplier += context.walkOnWaterOnePenalty * SQRT_2;
         }
         Block fromDownBlock = fromDown.getBlock();
@@ -163,21 +164,9 @@ public class MovementDiagonal extends Movement {
         if (cuttingOver2 == Blocks.MAGMA || MovementHelper.isLava(cuttingOver2)) {
             return;
         }
-        Block startIn = context.getBlock(x, y, z);
-        boolean water = false;
-        if (MovementHelper.isWater(startIn) || MovementHelper.isWater(destInto.getBlock())) {
-            if (ascend) {
-                return;
-            }
-            // Ignore previous multiplier
-            // Whatever we were walking on (possibly soul sand) doesn't matter as we're actually floating on water
-            // Not even touching the blocks below
-            multiplier = context.waterWalkSpeed;
-            water = true;
-        }
         IBlockState pb0 = context.get(x, y, destZ);
         IBlockState pb2 = context.get(destX, y, z);
-        if (ascend) {
+        if (ascend && !ridingBoat) { // Boat Support
             boolean ATop = MovementHelper.canWalkThrough(context, x, y + 2, destZ);
             boolean AMid = MovementHelper.canWalkThrough(context, x, y + 1, destZ);
             boolean ALow = MovementHelper.canWalkThrough(context, x, y, destZ, pb0);
@@ -225,6 +214,19 @@ public class MovementDiagonal extends Movement {
         if (optionB == 0 && ((MovementHelper.avoidWalkingInto(pb0.getBlock()) && pb0.getBlock() != Blocks.WATER) || MovementHelper.avoidWalkingInto(pb1.getBlock()))) {
             // and now that option B is fully calculated, see if we can edge around that way
             return;
+        }
+        // Boat Support
+        Block startIn = context.getBlock(x, y, z);
+        boolean water = false;
+        if (MovementHelper.isWater(startIn) || MovementHelper.isWater(destInto.getBlock())) {
+            if (ascend) {
+                return;
+            }
+            // Ignore previous multiplier
+            // Whatever we were walking on (possibly soul sand) doesn't matter as we're actually floating on water
+            // Not even touching the blocks below
+            multiplier = ridingBoat ? WALK_ONE_BLOCK_COST / 3 : context.waterWalkSpeed;
+            water = true;
         }
         if (optionA != 0 || optionB != 0) {
             multiplier *= SQRT_2 - 0.001; // TODO tune

@@ -743,6 +743,46 @@ public final class BuilderProcess extends BaritoneProcessHelper implements IBuil
         return new GoalComposite(toBreak.toArray(new Goal[0]));
     }
 
+    /**
+     * Calculates missing blocks in a structure, compared to a given schematic.
+     *
+     * @param bcc The context for the builder's calculations. This context contains
+     *            information about the current game world and the desired structure's
+     *            schematic.
+     * @return A map where the keys are the types of missing blocks (IBlockState),
+     *         and the values are the number of each missing block.
+     */
+    @Deprecated // TODO - Test Later (This is an experiment where I wanna get the full materials list before building)
+    public Map<IBlockState, Integer> calcMissing(BuilderCalculationContext bcc) {
+
+        // Initialize the map that will store the types and quantities of missing blocks
+        Map<IBlockState, Integer> missing = new HashMap<>();
+
+        // Recalculate the full structure
+        fullRecalc(bcc);
+
+        // For each incorrect position in the structure...
+        incorrectPositions.forEach(pos -> {
+            // Get the current block state at this position
+            IBlockState state = bcc.bsi.get0(pos);
+
+            // If the block is air (i.e., there's no block there)...
+            if (state.getBlock() instanceof BlockAir) {
+                // If the schematic does not contain a block that can be placed here...
+                if (!approxPlaceable.contains(bcc.getSchematic(pos.x, pos.y, pos.z, state))) {
+                    // Get the desired block state from the schematic
+                    IBlockState desired = bcc.getSchematic(pos.x, pos.y, pos.z, state);
+
+                    // Increment the count of this type of missing block in the map
+                    missing.put(desired, 1 + missing.getOrDefault(desired, 0));
+                }
+            }
+        });
+
+        // Return the map of missing blocks
+        return missing;
+    }
+
     public static class JankyGoalComposite implements Goal {
 
         private final Goal primary;
@@ -793,7 +833,7 @@ public final class BuilderProcess extends BaritoneProcessHelper implements IBuil
         }
         boolean allowSameLevel = ctx.world().getBlockState(pos.up()).getBlock() != Blocks.AIR;
         IBlockState current = ctx.world().getBlockState(pos);
-        for (EnumFacing facing : Movement.HORIZONTALS_BUT_ALSO_DOWN_____SO_EVERY_DIRECTION_EXCEPT_UP) {
+        for (EnumFacing facing : Movement.EVERY_DIRECTION_EXCEPT_UP) {
             //noinspection ConstantConditions
             if (MovementHelper.canPlaceAgainst(ctx, pos.offset(facing)) && ctx.world().mayPlace(bcc.getSchematic(pos.getX(), pos.getY(), pos.getZ(), current).getBlock(), pos, false, facing, null)) {
                 return new GoalAdjacent(pos, pos.offset(facing), allowSameLevel);

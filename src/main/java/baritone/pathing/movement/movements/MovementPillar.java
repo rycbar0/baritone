@@ -57,6 +57,9 @@ public class MovementPillar extends Movement {
     }
 
     public static double cost(CalculationContext context, int x, int y, int z) {
+        if (MovementHelper.isRidingBoat(context) && Baritone.settings().waterPathInBoat.value) { // Boat Support - can't 'pillar' in boats
+            return COST_INF;
+        }
         IBlockState fromState = context.get(x, y, z);
         Block from = fromState.getBlock();
         boolean ladder = from == Blocks.LADDER || from == Blocks.VINE;

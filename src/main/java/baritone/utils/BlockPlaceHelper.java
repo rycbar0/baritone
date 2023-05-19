@@ -39,6 +39,7 @@ public class BlockPlaceHelper implements Helper {
             return;
         }
         RayTraceResult mouseOver = ctx.objectMouseOver();
+        // TODO - Boat Reference?
         if (!rightClickRequested || ctx.player().isRowingBoat() || mouseOver == null || mouseOver.getBlockPos() == null || mouseOver.typeOfHit != RayTraceResult.Type.BLOCK) {
             return;
         }

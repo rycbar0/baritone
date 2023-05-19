@@ -23,8 +23,10 @@ import baritone.api.pathing.goals.Goal;
 import baritone.api.pathing.movement.ActionCosts;
 import baritone.api.utils.BetterBlockPos;
 import baritone.pathing.calc.openset.BinaryHeapOpenSet;
-import baritone.pathing.movement.CalculationContext;
-import baritone.pathing.movement.Moves;
+import baritone.pathing.movement.*;
+import baritone.pathing.movement.moves.BoatMoves;
+import baritone.pathing.movement.moves.HumanMoves;
+import baritone.pathing.movement.moves.IMoves;
 import baritone.utils.pathing.BetterWorldBorder;
 import baritone.utils.pathing.Favoring;
 import baritone.utils.pathing.MutableMoveResult;
@@ -76,7 +78,6 @@ public final class AStarPathFinder extends AbstractNodeCostSearch {
         int timeCheckInterval = 1 << 6;
         int pathingMaxChunkBorderFetch = Baritone.settings().pathingMaxChunkBorderFetch.value; // grab all settings beforehand so that changing settings during pathing doesn't cause a crash or unpredictable behavior
         double minimumImprovement = Baritone.settings().minimumImprovementRepropagation.value ? MIN_IMPROVEMENT : 0;
-        Moves[] allMoves = Moves.values();
         while (!openSet.isEmpty() && numEmptyChunk < pathingMaxChunkBorderFetch && !cancelRequested) {
             if ((numNodes & (timeCheckInterval - 1)) == 0) { // only call this once every 64 nodes (about half a millisecond)
                 long now = System.currentTimeMillis(); // since nanoTime is slow on windows (takes many microseconds)
@@ -96,20 +97,20 @@ public final class AStarPathFinder extends AbstractNodeCostSearch {
                 logDebug("Took " + (System.currentTimeMillis() - startTime) + "ms, " + numMovementsConsidered + " movements considered");
                 return Optional.of(new Path(startNode, currentNode, numNodes, goal, calcContext));
             }
-            for (Moves moves : allMoves) {
-                int newX = currentNode.x + moves.xOffset;
-                int newZ = currentNode.z + moves.zOffset;
+            for (IMoves moves : MovementHelper.isRidingBoat(calcContext) ? BoatMoves.values() : HumanMoves.values()) { // Boat Support
+                int newX = currentNode.x + moves.getXOffset();
+                int newZ = currentNode.z + moves.getZOffset();
                 if ((newX >> 4 != currentNode.x >> 4 || newZ >> 4 != currentNode.z >> 4) && !calcContext.isLoaded(newX, newZ)) {
                     // only need to check if the destination is a loaded chunk if it's in a different chunk than the start of the movement
-                    if (!moves.dynamicXZ) { // only increment the counter if the movement would have gone out of bounds guaranteed
+                    if (!moves.isDynamicXZ()) { // only increment the counter if the movement would have gone out of bounds guaranteed
                         numEmptyChunk++;
                     }
                     continue;
                 }
-                if (!moves.dynamicXZ && !worldBorder.entirelyContains(newX, newZ)) {
+                if (!moves.isDynamicXZ() && !worldBorder.entirelyContains(newX, newZ)) {
                     continue;
                 }
-                if (currentNode.y + moves.yOffset > 256 || currentNode.y + moves.yOffset < 0) {
+                if (currentNode.y + moves.getYOffset() > 256 || currentNode.y + moves.getYOffset() < 0) {
                     continue;
                 }
                 res.reset();
@@ -123,14 +124,14 @@ public final class AStarPathFinder extends AbstractNodeCostSearch {
                     throw new IllegalStateException(moves + " calculated implausible cost " + actionCost);
                 }
                 // check destination after verifying it's not COST_INF -- some movements return a static IMPOSSIBLE object with COST_INF and destination being 0,0,0 to avoid allocating a new result for every failed calculation
-                if (moves.dynamicXZ && !worldBorder.entirelyContains(res.x, res.z)) { // see issue #218
+                if (moves.isDynamicXZ() && !worldBorder.entirelyContains(res.x, res.z)) { // see issue #218
                     continue;
                 }
-                if (!moves.dynamicXZ && (res.x != newX || res.z != newZ)) {
+                if (!moves.isDynamicXZ() && (res.x != newX || res.z != newZ)) {
                     throw new IllegalStateException(moves + " " + res.x + " " + newX + " " + res.z + " " + newZ);
                 }
-                if (!moves.dynamicY && res.y != currentNode.y + moves.yOffset) {
-                    throw new IllegalStateException(moves + " " + res.y + " " + (currentNode.y + moves.yOffset));
+                if (!moves.isDynamicY() && res.y != currentNode.y + moves.getYOffset()) {
+                    throw new IllegalStateException(moves + " " + res.y + " " + (currentNode.y + moves.getYOffset()));
                 }
                 long hashCode = BetterBlockPos.longHash(res.x, res.y, res.z);
                 if (isFavoring) {
@@ -164,14 +165,24 @@ public final class AStarPathFinder extends AbstractNodeCostSearch {
         if (cancelRequested) {
             return Optional.empty();
         }
-        System.out.println(numMovementsConsidered + " movements considered");
-        System.out.println("Open set size: " + openSet.size());
-        System.out.println("PathNode map size: " + mapSize());
-        System.out.println((int) (numNodes * 1.0 / ((System.currentTimeMillis() - startTime) / 1000F)) + " nodes per second");
+        logOpenSet(numMovementsConsidered + " movements considered");
+        logOpenSet("Open set size: " + openSet.size());
+        logOpenSet("PathNode map size: " + mapSize());
+        logOpenSet((int) (numNodes * 1.0 / ((System.currentTimeMillis() - startTime) / 1000F)) + " nodes per second");
         Optional<IPath> result = bestSoFar(true, numNodes);
         if (result.isPresent()) {
             logDebug("Took " + (System.currentTimeMillis() - startTime) + "ms, " + numMovementsConsidered + " movements considered");
         }
         return result;
+    }
+
+    /**
+     * This spam pollutes console with no real value, so I made a setting
+     */
+    // TODO - move to Helper#consoleDebug
+    private void logOpenSet(String message) {
+        if (Baritone.settings().openSetDebug.value) {
+            System.out.println(message);
+        }
     }
 }

@@ -25,6 +25,7 @@ import baritone.api.event.listener.IGameEventListener;
 import baritone.api.utils.Helper;
 import baritone.cache.WorldProvider;
 import baritone.utils.BlockStateInterface;
+import net.minecraft.entity.item.EntityBoat;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 
@@ -154,6 +155,11 @@ public final class GameEventHandler implements IEventBus, Helper {
     @Override
     public void onPathEvent(PathEvent event) {
         listeners.forEach(l -> l.onPathEvent(event));
+    }
+
+    @Override // Boat Support
+    public void onBoatRidden(RiddenBoatEvent event) {
+        listeners.forEach(l -> l.onBoatRidden(event));
     }
 
     @Override

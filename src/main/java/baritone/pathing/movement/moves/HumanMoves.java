@@ -15,9 +15,11 @@
  * along with Baritone.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package baritone.pathing.movement;
+package baritone.pathing.movement.moves;
 
 import baritone.api.utils.BetterBlockPos;
+import baritone.pathing.movement.CalculationContext;
+import baritone.pathing.movement.Movement;
 import baritone.pathing.movement.movements.*;
 import baritone.utils.pathing.MutableMoveResult;
 import net.minecraft.util.EnumFacing;
@@ -27,7 +29,7 @@ import net.minecraft.util.EnumFacing;
  *
  * @author leijurv
  */
-public enum Moves {
+public enum HumanMoves implements IMoves { // Boat Support - Added IMoves - Refactor Moves -> HumanMoves
     DOWNWARD(0, -1, 0) {
         @Override
         public Movement apply0(CalculationContext context, BetterBlockPos src) {
@@ -331,7 +333,7 @@ public enum Moves {
     public final int yOffset;
     public final int zOffset;
 
-    Moves(int x, int y, int z, boolean dynamicXZ, boolean dynamicY) {
+    HumanMoves(int x, int y, int z, boolean dynamicXZ, boolean dynamicY) {
         this.xOffset = x;
         this.yOffset = y;
         this.zOffset = z;
@@ -339,12 +341,14 @@ public enum Moves {
         this.dynamicY = dynamicY;
     }
 
-    Moves(int x, int y, int z) {
+    HumanMoves(int x, int y, int z) {
         this(x, y, z, false, false);
     }
 
+    @Override
     public abstract Movement apply0(CalculationContext context, BetterBlockPos src);
 
+    @Override
     public void apply(CalculationContext context, int x, int y, int z, MutableMoveResult result) {
         if (dynamicXZ || dynamicY) {
             throw new UnsupportedOperationException();
@@ -355,7 +359,33 @@ public enum Moves {
         result.cost = cost(context, x, y, z);
     }
 
+    @Override
     public double cost(CalculationContext context, int x, int y, int z) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isDynamicXZ() {
+        return dynamicXZ;
+    }
+
+    @Override
+    public boolean isDynamicY() {
+        return dynamicY;
+    }
+
+    @Override
+    public int getXOffset() {
+        return xOffset;
+    }
+
+    @Override
+    public int getYOffset() {
+        return yOffset;
+    }
+
+    @Override
+    public int getZOffset() {
+        return zOffset;
     }
 }

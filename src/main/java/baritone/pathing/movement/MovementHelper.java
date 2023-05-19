@@ -32,15 +32,18 @@ import net.minecraft.block.*;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityBoat;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.Optional;
 
-import static baritone.pathing.movement.Movement.HORIZONTALS_BUT_ALSO_DOWN_____SO_EVERY_DIRECTION_EXCEPT_UP;
+import static baritone.pathing.movement.Movement.EVERY_DIRECTION_EXCEPT_UP;
 import static baritone.pathing.precompute.Ternary.*;
 
 /**
@@ -500,7 +503,7 @@ public interface MovementHelper extends ActionCosts, Helper {
             return false;
         }
         if (block instanceof BlockLiquid) {
-            if (context.assumeWalkOnWater) {
+            if (context.assumeWalkOnWater || isRidingBoat(context)) { // Boat Support
                 return false;
             }
             Block blockAbove = context.getBlock(x, y + 1, z);
@@ -673,7 +676,7 @@ public interface MovementHelper extends ActionCosts, Helper {
             found = true;
         }
         for (int i = 0; i < 5; i++) {
-            BlockPos against1 = placeAt.offset(HORIZONTALS_BUT_ALSO_DOWN_____SO_EVERY_DIRECTION_EXCEPT_UP[i]);
+            BlockPos against1 = placeAt.offset(EVERY_DIRECTION_EXCEPT_UP[i]);
             if (MovementHelper.canPlaceAgainst(ctx, against1)) {
                 if (!((Baritone) baritone).getInventoryBehavior().selectThrowawayForLocation(false, placeAt.getX(), placeAt.getY(), placeAt.getZ())) { // get ready to place a throwaway block
                     Helper.HELPER.logDebug("bb pls get me some blocks. dirt, netherrack, cobble");
@@ -724,10 +727,114 @@ public interface MovementHelper extends ActionCosts, Helper {
     }
 
     static boolean isTransparent(Block b) {
-
         return b == Blocks.AIR ||
                 b == Blocks.FLOWING_LAVA ||
                 b == Blocks.FLOWING_WATER ||
                 b == Blocks.WATER;
+    }
+
+    // Boat Support
+
+    /**
+     * Determines if the player within a specific CalculationContext is currently riding a boat.
+     *
+     * @param ctx The CalculationContext that represents the current state of the game.
+     * @return True if the player is riding a boat, false otherwise.
+     */
+    static boolean isRidingBoat(CalculationContext ctx) {
+        return isRidingBoat(ctx.baritone.getPlayerContext());
+    }
+
+    /**
+     * Determines if the player within a specific IPlayerContext is currently riding a boat.
+     *
+     * @param ctx The IPlayerContext that represents the current state of the game.
+     * @return True if the player is riding a boat, false otherwise.
+     */
+    static boolean isRidingBoat(IPlayerContext ctx) {
+        if (ctx.player().getRidingEntity() == null) {
+            return false;
+        }
+        return ctx.player().getRidingEntity() instanceof EntityBoat;
+    }
+
+    /**
+     * Returns the width direction of the boat the player is currently riding.
+     *
+     * @param ctx The IPlayerContext that represents the current state of the game.
+     * @return An array of two integers representing the width direction in the X and Z axes, or {0, 0} if the player is not in a boat.
+     */
+    @Deprecated // TODO - I think this needs fixing
+    static int[] getBoatWidthDirection(IPlayerContext ctx) {
+        Entity entity = ctx.player().getRidingEntity();
+
+        if (!(entity instanceof EntityBoat)) {
+            return new int[]{0, 0};
+        }
+
+        float rotation = entity.rotationYaw;
+
+        rotation = Rotation.normalizeYaw(rotation);  // Normalize rotation
+
+        return rotation < 45 || rotation >= 135
+                ? new int[]{
+                        (int) Math.round(Math.cos(Math.toRadians(rotation))),
+                        (int) Math.round(Math.sin(Math.toRadians(rotation)))
+                } : new int[]{0, 0};
+    }
+
+    /**
+     * Smooths the rotation from one angle to another. This is used to avoid sudden jumps in rotation, which can look unnatural.
+     *
+     * @param from The initial angle, in degrees.
+     * @param to The final angle, in degrees.
+     * @param weight A value between 0.0 and 1.0 representing the amount of smoothing to apply. Higher values result in smoother transitions.
+     * @return The smoothed angle, in degrees.
+     */
+    static float smoothRotation(float from, float to, float weight) {
+        float diff = (to - from + 180) % 360 - 180;
+        return from + weight * diff;
+    }
+
+    /**
+     * Interpolates the boat's target yaw based on its motion and adjusts it to an appropriate yaw to prevent over steering.
+     *
+     * @param boat The boat entity
+     * @param targetYaw The target yaw for the boat
+     * @return The interpolated yaw value
+     */
+    @Deprecated // Cursed
+    static float interpolateBoatYaw(EntityBoat boat, float targetYaw, float maxDeltaAngle) {
+        double motionX = boat.motionX;
+        double motionZ = boat.motionZ;
+
+        // Calculate the boat's velocity
+        double velocity = Math.sqrt(motionX * motionX + motionZ * motionZ);
+//        System.out.println("Boat velocity: " + velocity);
+
+        // Calculate the boat's current motion direction
+        double motionDirection = Math.atan2(motionZ, motionX);
+//        System.out.println("Motion direction: " + motionDirection);
+
+        // Calculate the difference between the target yaw and the motion direction
+        double deltaAngle = MathHelper.wrapDegrees(targetYaw - (float) Math.toDegrees(motionDirection));
+//        System.out.println("Delta angle: " + deltaAngle);
+
+        // Adjust the target yaw based on the boat's velocity and deltaAngle
+        // maxDeltaAngle - Maximum delta angle to prevent excessive yaw changes
+        double adjustedDeltaAngle = MathHelper.clamp(deltaAngle, -maxDeltaAngle, maxDeltaAngle);
+//        System.out.println("Adjusted delta angle: " + adjustedDeltaAngle);
+
+        // Interpolate the adjusted delta angle based on the boat's velocity
+        double interpolatedDeltaAngle = adjustedDeltaAngle * (Math.sqrt(velocity) / 3.0);
+//        System.out.println("Interpolated delta angle: " + interpolatedDeltaAngle);
+
+        // Calculate the interpolated yaw by subtracting the interpolated delta angle
+        double interpolatedYaw = targetYaw - interpolatedDeltaAngle;
+//        System.out.println("Interpolated yaw: " + interpolatedYaw);
+
+        // Set the interpolated yaw as the boat's new targetYaw
+        // Also wrap it to -180 and 180 range
+        return MathHelper.wrapDegrees((float) interpolatedYaw);
     }
 }
