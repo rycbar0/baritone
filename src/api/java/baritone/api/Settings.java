@@ -208,6 +208,19 @@ public final class Settings {
             Item.getItemFromBlock(Blocks.STONE)
     )));
 
+    public final Setting<List<Item>> acceptableFuelItems = new Setting<>(new ArrayList<>(Arrays.asList(
+            //Item.getByNameOrId("lava_bucket"),
+            //Item.getByNameOrId("coal_block"),
+            //Item.getByNameOrId("dried_kelp_block"),
+            Item.getByNameOrId("coal"),
+            Item.getByNameOrId("charcoal")//,
+            //Item.getByNameOrId("planks"),
+            //Item.getByNameOrId("wooden_pickaxe"),
+            //Item.getByNameOrId("stick"),
+            //Item.getByNameOrId("sapling"),
+            //Item.getByNameOrId("carpet")
+    )));
+
     /**
      * Blocks that Baritone will attempt to avoid (Used in avoidance)
      */

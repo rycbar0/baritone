@@ -95,6 +95,12 @@ public interface IBaritone {
     ICraftingProcess getCraftingProcess();
 
     /**
+     * @return The {@link ISmeltingProcess} instance
+     * @see ISmeltingProcess
+     */
+    ISmeltingProcess getSmeltingProcess();
+
+     /**
      * @return The {@link IWorldProvider} instance
      * @see IWorldProvider
      */
