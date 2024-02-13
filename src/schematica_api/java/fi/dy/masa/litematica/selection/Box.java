@@ -15,31 +15,20 @@
  * along with Baritone.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fi.dy.masa.litematica.schematic.placement;
+package fi.dy.masa.litematica.selection;
 
-import fi.dy.masa.litematica.selection.Box;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.Rotation;
+import net.minecraft.core.BlockPos;
 
 import javax.annotation.Nullable;
 
-public class SchematicPlacement extends SchematicPlacementUnloaded {
-    private Rotation rotation;
-    private Mirror mirror;
+public class Box {
     @Nullable
-    private Box enclosingBox;
-
-    public Rotation getRotation() {
-        return this.rotation;
-    }
-
-    public Mirror getMirror() {
-        return this.mirror;
+    public BlockPos getPos1() {
+        return null;
     }
 
     @Nullable
-    public Box getEclosingBox() {
-        return this.enclosingBox;
+    public BlockPos getPos2() {
+        return null;
     }
-
 }
