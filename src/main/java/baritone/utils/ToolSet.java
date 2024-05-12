@@ -142,7 +142,8 @@ public class ToolSet {
             } else if (speed == highestSpeed) {
                 int cost = getMaterialCost(itemStack);
                 if ((cost < lowestCost && (silkTouch || !bestSilkTouch)) ||
-                        (preferSilkTouch && !bestSilkTouch && silkTouch)) {
+                        (preferSilkTouch && !bestSilkTouch && silkTouch)) ||
+                        (Baritone.settings().forceHoe.value && itemStack.getItem() instanceof HoeItem) {
                     highestSpeed = speed;
                     best = i;
                     lowestCost = cost;
