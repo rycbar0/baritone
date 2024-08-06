@@ -54,9 +54,6 @@ public final class InventoryBehavior extends Behavior implements Helper {
 
     @Override
     public void onTick(TickEvent event) {
-        if (baritone.settings().OverlayOnlyMode.value) {
-            return;
-        }
         if (!Baritone.settings().allowInventory.value) {
             return;
         }
