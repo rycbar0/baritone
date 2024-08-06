@@ -65,6 +65,9 @@ public final class LookBehavior extends Behavior implements ILookBehavior {
 
     @Override
     public void updateTarget(Rotation rotation, boolean blockInteract) {
+        if (baritone.settings().OverlayOnlyMode.value) {
+            return;
+        }
         this.target = new Target(rotation, Target.Mode.resolve(ctx, blockInteract));
     }
 
@@ -75,9 +78,6 @@ public final class LookBehavior extends Behavior implements ILookBehavior {
 
     @Override
     public void onTick(TickEvent event) {
-        if (baritone.settings().OverlayOnlyMode.value) {
-            return;
-        }
         if (event.getType() == TickEvent.Type.IN) {
             this.processor.tick();
         }
