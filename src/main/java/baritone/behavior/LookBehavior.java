@@ -75,6 +75,9 @@ public final class LookBehavior extends Behavior implements ILookBehavior {
 
     @Override
     public void onTick(TickEvent event) {
+        if (baritone.settings().OverlayOnlyMode.value) {
+            return;
+        }
         if (event.getType() == TickEvent.Type.IN) {
             this.processor.tick();
         }
