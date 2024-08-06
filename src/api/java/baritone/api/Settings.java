@@ -1504,6 +1504,11 @@ public final class Settings {
     public final Setting<Boolean> elytraChatSpam = new Setting<>(false);
 
     /**
+     * Baritone only shows the overlay but does not take control
+     */
+    public final Setting<Boolean> OverlayOnlyMode = new Setting<>(false);
+
+    /**
      * A map of lowercase setting field names to their respective setting
      */
     public final Map<String, Setting<?>> byLowerName;
